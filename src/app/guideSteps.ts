@@ -1,0 +1,11 @@
+export const GUIDE_STEPS = [
+  { title: 'Willkommen bei Altair', target: '', text: 'Hier programmierst du einen Modellrechner direkt in Maschinensprache. Der Guide führt ein Beispiel vor: die Zahl 13 ausgeben. Dein Speicher und Rechnerzustand werden am Ende vollständig wiederhergestellt.' },
+  { title: 'Speicheradresse wählen', target: 'address', text: 'Die acht Schalter wählen eine Speicheradresse von 0 bis 255. Mit − und + gehst du zur benachbarten Zelle. Auch ein Klick in der Speicherliste wählt eine Zelle aus.' },
+  { title: 'Das Befehlswort', target: 'word', text: 'Links stehen acht Bits für den Operationscode, rechts acht für die Adresse. Der Guide hat in Zelle 0 OUTM 8 eingetragen: 0001 1000 0000 1000. Jede Schalteränderung wird sofort in den Speicher geschrieben.' },
+  { title: 'Daten eingeben', target: 'word', text: 'Die gleichen 16 Schalter schreiben auch Daten statt Befehlen. In Zelle 8 steht 13: 0000 0000 0000 1101. Die Dezimal- und Hex-Anzeige helfen beim Kontrollieren.' },
+  { title: 'Einzelschritt', target: 'controls', text: 'Einzelschritt führt einen ganzen Befehl aus. Der Guide hat OUTM 8 ausgeführt. Die Ausgabe-LEDs zeigen jetzt 13. Start führt fortlaufend aus, Pause hält den Lauf an, der Regler bestimmt das Tempo.' },
+  { title: 'Ausgabe', target: 'output', text: 'Leuchtende LEDs stehen für 1, dunkle für 0. Der letzte Ausgabewert ist zusätzlich als Zahl zu sehen. Das aufklappbare Protokoll enthält die letzten 1000 Ausgaben.' },
+  { title: 'Programme mit Eingabe', target: 'input', text: 'Bei INM hält Altair an und wartet. Stelle die Eingabe über die Schalter oder das Zahlenfeld ein und bestätige sie. Danach kannst du mit Start oder Einzelschritt fortfahren.' },
+  { title: 'Anhalten und neu starten', target: 'controls', text: 'STOP beendet das Programm. Reset setzt den Prozessor zurück auf Adresse 0; der aktuelle Speicherinhalt bleibt erhalten. Speicher löschen entfernt auch das Programm – erst nach deiner Bestätigung.' },
+  { title: 'Hilfe, Dateien und Skins', target: '', text: 'Unter Datei speicherst und lädst du Programme. Hilfe enthält den durchsuchbaren Befehlssatz. Ansicht bietet fünf Skins und optionale PC/IR- und AR/DR-Register. Dein Speicher wird außerdem automatisch im Browser gesichert.' },
+]
