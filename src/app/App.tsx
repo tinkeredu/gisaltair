@@ -15,6 +15,8 @@ const REPO = 'https://github.com/tinkeredu/gisaltair'
 const SKINS = [{ id: 'auto', label: 'Automatisch' }, { id: 'light', label: 'Hell' }, { id: 'dark', label: 'Dunkel' }, { id: 'classic', label: 'Klassisch' }, { id: 'terminal', label: 'Terminal' }] as const
 type Skin = typeof SKINS[number]['id']
 type Mode = 'binary' | 'symbolic' | 'decimal' | 'hex'
+const storagePath = window.location.pathname.replace(/\/index\.html?$/i, '').replace(/\/+$/, '') || '/'
+const storageKey = (name: string) => 'altair:' + storagePath + '.' + name
 
 function Panel({ title, target, children, className = '' }: { title: string; target?: string; children: ReactNode; className?: string }) {
   return <section className={`group-box ${className}`} data-guide={target}><h2 className="legend">{title}</h2>{children}</section>
@@ -53,13 +55,13 @@ function revealMemoryRow(row: HTMLButtonElement | null | undefined) {
 }
 
 export default function App() {
-  const [initial] = useState(() => readStored('altair.memory', EXAMPLES[0].memory, isMemory))
+  const [initial] = useState(() => readStored(storageKey('memory'), EXAMPLES[0].memory, isMemory))
   const m = useMachine(initial)
   const { cpu } = m
-  const [skin, setSkin] = useState<Skin>(() => readStored('altair.skin', 'auto', (v): v is Skin => SKINS.some((s) => s.id === v)))
+  const [skin, setSkin] = useState<Skin>(() => readStored(storageKey('skin'), 'auto', (v): v is Skin => SKINS.some((s) => s.id === v)))
   const [systemDark, setSystemDark] = useState(() => window.matchMedia('(prefers-color-scheme: dark)').matches)
-  const [showControl, setShowControl] = useState(() => readStored('altair.control', false, (v): v is boolean => typeof v === 'boolean'))
-  const [showArDr, setShowArDr] = useState(() => readStored('altair.ardr', false, (v): v is boolean => typeof v === 'boolean'))
+  const [showControl, setShowControl] = useState(() => readStored(storageKey('control'), false, (v): v is boolean => typeof v === 'boolean'))
+  const [showArDr, setShowArDr] = useState(() => readStored(storageKey('ardr'), false, (v): v is boolean => typeof v === 'boolean'))
   const [address, setAddress] = useState(0)
   const [mode, setMode] = useState<Mode>('binary')
   const [follow, setFollow] = useState(true)
@@ -90,14 +92,14 @@ export default function App() {
   }, [])
   useEffect(() => {
     document.documentElement.dataset.skin = skin === 'auto' ? systemDark ? 'dark' : 'light' : skin
-    writeStored('altair.skin', skin)
+    writeStored(storageKey('skin'), skin)
   }, [skin, systemDark])
-  useEffect(() => { writeStored('altair.control', showControl) }, [showControl])
-  useEffect(() => { writeStored('altair.ardr', showArDr) }, [showArDr])
+  useEffect(() => { writeStored(storageKey('control'), showControl) }, [showControl])
+  useEffect(() => { writeStored(storageKey('ardr'), showArDr) }, [showArDr])
   useEffect(() => {
     // Synchronize the availability of the browser's persistent storage.
     // oxlint-disable-next-line react/set-state-in-effect
-    if (guide === null) setStorageError(!writeStored('altair.memory', JSON.parse(memString)))
+    if (guide === null) setStorageError(!writeStored(storageKey('memory'), JSON.parse(memString)))
   }, [memString, guide])
   useEffect(() => {
     if (follow) revealMemoryRow(rowRefs.current[cpu.pc])

@@ -54,7 +54,7 @@ Arithmetik läuft modulo 65536; negative Werte werden im Zweierkomplement gelese
 
 Datei → Programm speichern lädt den aktuellen Speicher als versionierte `*.altair.json`-Datei herunter. Eine Datei enthält genau 256 ganze Zahlen von 0 bis 65535; fehlerhafte Dateien werden vor dem Laden zurückgewiesen. Vor dem Ersetzen des Speichers fragt die App nach.
 
-Die automatische Sicherung bleibt im selben Browser und unter derselben Webadresse erhalten. Sie ist kein Ersatz für einen Dateidownload: Löschen der Browserdaten, Privatmodus oder ein Wechsel von Browser/Gerät/Domain kann sie entfernen. Die Ausgabeliste enthält maximal die letzten 1000 Werte.
+Die automatische Sicherung bleibt im selben Browser und unter demselben Webspace-Pfad erhalten (altair:<pfad>.memory). Dadurch überschreiben sich zwei Altair-Installationen auf derselben Domain in verschiedenen Unterordnern nicht gegenseitig. Sie ist kein Ersatz für einen Dateidownload: Löschen der Browserdaten, Privatmodus oder ein Wechsel von Browser/Gerät/Domain kann sie entfernen. Die Ausgabeliste enthält maximal die letzten 1000 Werte.
 
 Über **„Als PC1 speichern“** ist außerdem das binäre Originalformat verfügbar. Vorhandene `*.pc1`-Dateien lassen sich ebenfalls laden: 512 Byte, bestehend aus 256 vorzeichenlosen 16-Bit-Wörtern in Little-Endian-Reihenfolge, ohne Header. Das Format wurde am Original untersucht; JSON-Dateien sind das besser lesbare Webformat. Beide Formate speichern den Speicher, nicht die CPU-Register oder ein pausiertes Programm.
 
