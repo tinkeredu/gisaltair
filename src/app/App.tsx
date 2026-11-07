@@ -17,6 +17,19 @@ type Skin = typeof SKINS[number]['id']
 type Mode = 'binary' | 'symbolic' | 'decimal' | 'hex'
 const storagePath = window.location.pathname.replace(/\/index\.html?$/i, '').replace(/\/+$/, '') || '/'
 const storageKey = (name: string) => 'altair:' + storagePath + '.' + name
+function readStoredMigrated<T>(name: string, legacy: string, fallback: T, valid: (value: unknown) => value is T): T {
+  const key = storageKey(name)
+  let hasCurrent = false
+  try { hasCurrent = localStorage.getItem(key) !== null } catch { hasCurrent = true }
+  if (!hasCurrent) {
+    const migrated = readStored(legacy, null as unknown as T, valid)
+    if (migrated !== null) {
+      writeStored(key, migrated)
+      return migrated
+    }
+  }
+  return readStored(key, fallback, valid)
+}
 
 function Panel({ title, target, children, className = '' }: { title: string; target?: string; children: ReactNode; className?: string }) {
   return <section className={`group-box ${className}`} data-guide={target}><h2 className="legend">{title}</h2>{children}</section>
@@ -55,13 +68,13 @@ function revealMemoryRow(row: HTMLButtonElement | null | undefined) {
 }
 
 export default function App() {
-  const [initial] = useState(() => readStored(storageKey('memory'), EXAMPLES[0].memory, isMemory))
+  const [initial] = useState(() => readStoredMigrated('memory', 'altair.memory', EXAMPLES[0].memory, isMemory))
   const m = useMachine(initial)
   const { cpu } = m
-  const [skin, setSkin] = useState<Skin>(() => readStored(storageKey('skin'), 'auto', (v): v is Skin => SKINS.some((s) => s.id === v)))
+  const [skin, setSkin] = useState<Skin>(() => readStoredMigrated('skin', 'altair.skin', 'auto', (v): v is Skin => SKINS.some((s) => s.id === v)))
   const [systemDark, setSystemDark] = useState(() => window.matchMedia('(prefers-color-scheme: dark)').matches)
-  const [showControl, setShowControl] = useState(() => readStored(storageKey('control'), false, (v): v is boolean => typeof v === 'boolean'))
-  const [showArDr, setShowArDr] = useState(() => readStored(storageKey('ardr'), false, (v): v is boolean => typeof v === 'boolean'))
+  const [showControl, setShowControl] = useState(() => readStoredMigrated('control', 'altair.control', false, (v): v is boolean => typeof v === 'boolean'))
+  const [showArDr, setShowArDr] = useState(() => readStoredMigrated('ardr', 'altair.ardr', false, (v): v is boolean => typeof v === 'boolean'))
   const [address, setAddress] = useState(0)
   const [mode, setMode] = useState<Mode>('binary')
   const [follow, setFollow] = useState(true)
