@@ -371,8 +371,6 @@ input[aria-invalid='true'] { border-color: var(--err) !important; }
 .word-halves { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
 .word-halves h3 { display: flex; justify-content: space-between; font-size: 12px; font-weight: 600; margin-bottom: 6px; }
 .word-halves h3 > span { color: var(--muted); font-size: 10px; font-weight: 400; }
-.command-toggle { display: flex; align-items: center; gap: 7px; margin: 8px 0 10px; color: var(--muted); font-size: 11px; font-weight: 600; cursor: pointer; }
-.command-toggle input { accent-color: var(--sel); }
 .command-picker { margin: 0 0 12px; }
 .command-picker label { display: flex; flex-direction: column; gap: 6px; color: var(--muted); font-size: 11px; }
 .command-picker select { width: 100%; min-height: 34px; font-family: var(--font-mono); font-size: 13px; }

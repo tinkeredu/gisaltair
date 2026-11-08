@@ -8,7 +8,7 @@ Browser-Nachbau des Unterrichtsprogramms **Altair / PC1** von J. Schmidt. Progra
 
 - 256 Speicherzellen mit je 16 Bit, Akkumulator und Programmzähler.
 - Adresse und Befehlswort mit Bit-Schaltern bearbeiten. Jede Schalteränderung landet sofort im Speicher. Zusätzlich sind Zahlenfelder für Dezimal-, `0x`-Hex- und `0b`-Binärwerte verfügbar.
-- Optionaler Befehlswahl-Modus: Ein Altair-Befehl wird ausgewählt und sein Opcode binär in den Operationsteil übernommen.
+- Optionaler Befehlswahl-Modus (Menü „Ansicht“): Ein Altair-Befehl wird ausgewählt und sein Opcode binär in den Operationsteil übernommen.
 - Einzelschritt, Start, Pause, Reset und einstellbare Pause nach jedem Befehl. Auch Endlosschleifen lassen sich anhalten.
 - 16-Bit-Eingabe und Ausgabe-LEDs. Bei `INM` wartet die CPU auf eine bestätigte Eingabe. Danach mit Start oder Einzelschritt fortsetzen.
 - Binäre, symbolische, dezimale und hexadezimale Speicheransicht, intern scrollbar, mit Adressauswahl und „PC folgen“.
