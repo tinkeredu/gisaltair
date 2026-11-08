@@ -154,8 +154,12 @@ export default function App() {
   }
   const status = cpu.state === 'input' ? `Warte auf Eingabe für Zelle ${cpu.inputAddress}.` : cpu.state === 'halted' ? 'Programm beendet (STOP).' : cpu.state === 'error' ? cpu.error : m.running ? 'Programm läuft …' : 'Bereit.'
 
-  return <div className="app-shell">
-    <header className="app-header"><div className="brand-mark" aria-hidden="true">A<span>16</span></div><div><h1>Altair</h1><p>Modellrechner · Binär programmieren</p></div><span className="header-spacer" /><button className="btn" onClick={startGuide}>Guide starten</button></header>
+  return <div className="app-shell flex flex-col">
+    <header className="titlebar flex items-center gap-2 px-2 py-1">
+      <img src="./favicon.svg" alt="" className="h-5 w-5 shrink-0" />
+      <h1 className="min-w-0 flex-1 font-bold">Altair · Binär programmieren</h1>
+      <button type="button" className="btn shrink-0 py-0.5!" onClick={startGuide}>Guide starten</button>
+    </header>
     <MenuBar menus={[
       { label: 'Datei', items: [
         { label: 'Programm laden …', onSelect: () => { m.pause(); fileInput.current?.click() } },
@@ -188,7 +192,7 @@ export default function App() {
         requestLoad(memory, file.name)
       } catch (error) { setNotice(error instanceof Error ? error.message : 'Die Datei konnte nicht geladen werden.') }
     }} />
-    <main className="workspace">
+    <main className="app-main flex min-h-0 flex-1 flex-col gap-3 overflow-auto p-3">
       <div className="machine-column">
         <div className="section-heading"><div><span className="eyebrow">Programmierung</span><h2>Schalter setzen. Programm bauen.</h2></div><span className="chip">256 × 16 Bit</span></div>
         <div className="programming-grid">
@@ -217,15 +221,26 @@ export default function App() {
             <details className="output-log"><summary>Ausgabeprotokoll ({cpu.output.length})</summary><ol>{cpu.output.map((n, i) => <li key={i}><code>{valueText(n)} · {binary(n)}</code></li>)}</ol>{!cpu.output.length && <p>Das Programm hat noch nichts ausgegeben.</p>}</details>
           </Panel>
         </div>
-        <div className="execution-grid">
-          <Panel title="Programmsteuerung" target="controls">
-            <div className="control-buttons"><button className="btn" disabled={cpu.state !== 'ready' || m.running} onClick={m.step}>▸ Einzelschritt</button><button className="btn primary" disabled={cpu.state !== 'ready' || m.running} onClick={m.run}>▶ Start</button><button className="btn" disabled={!m.running} onClick={m.pause}>Ⅱ Pause</button><button className="btn" onClick={m.reset}>■ Reset</button></div>
-            <label className="delay-label">Pause nach jedem Befehl <strong>{m.delay} ms</strong><input aria-label="Pause nach jedem Befehl" type="range" min={0} max={1500} step={50} value={m.delay} onChange={(e) => m.setDelay(Number(e.target.value))} /></label>
-            <p className="text-muted">Reset setzt den Prozessor zurück. Der Speicher bleibt erhalten.</p>
-          </Panel>
-          <Panel title="Akkumulator · AC" target="ac"><div className="acc accumulator"><code>{binary(cpu.ac)}</code><strong>{valueText(cpu.ac)}</strong><span>0x{hex(cpu.ac)}</span></div></Panel>
-        </div>
-        {(showControl || showArDr) && <Panel title="Optionale Register"><div className="register-grid">{registers.map(([name, value]) => <div key={name}><span>{name}</span><code>{value} · 0x{hex(value, name === 'PC' || name === 'AR' ? 2 : 4)}</code>{name === 'IR' && <small>{disassemble(value)}</small>}</div>)}</div></Panel>}
+        <section className="cpu-panel group-box relative shrink-0 overflow-hidden p-4!" aria-label="Prozessor">
+          <span className="chip-label absolute top-2 right-3">Prozessor</span>
+          <div className="cpu-layout">
+            <div className="cpu-accumulator flex min-w-0 flex-col gap-2" data-guide="ac">
+              <span className="chip-label self-start text-xs">Akkumulator (AC)</span>
+              <output className="acc block px-3 py-1.5 text-center font-mono text-lg font-bold tabular-nums" aria-label="Akkumulator">
+                <code className="block text-sm">{binary(cpu.ac)}</code>
+                <strong className="block text-2xl">{valueText(cpu.ac)}</strong>
+                <span className="block text-xs opacity-75">0x{hex(cpu.ac)}</span>
+              </output>
+            </div>
+            <div className="cpu-controls flex min-w-0 flex-col gap-3" data-guide="controls">
+              <span className="chip-label self-start text-xs">Programmsteuerung</span>
+              <div className="control-buttons"><button className="btn" disabled={cpu.state !== 'ready' || m.running} onClick={m.step}>▸ Einzelschritt</button><button className="btn primary" disabled={cpu.state !== 'ready' || m.running} onClick={m.run}>▶ Start</button><button className="btn" disabled={!m.running} onClick={m.pause}>Ⅱ Pause</button><button className="btn" onClick={m.reset}>■ Reset</button></div>
+              <label className="delay-label">Pause nach jedem Befehl <strong>{m.delay} ms</strong><input aria-label="Pause nach jedem Befehl" type="range" min={0} max={1500} step={50} value={m.delay} onChange={(e) => m.setDelay(Number(e.target.value))} /></label>
+              <p className="text-muted text-xs">Reset setzt den Prozessor zurück. Der Speicher bleibt erhalten.</p>
+            </div>
+          </div>
+          {(showControl || showArDr) && <div className="cpu-registers mt-4 border-t border-line pt-3"><span className="chip-label mb-2 inline-block text-xs">Register</span><div className="register-grid">{registers.map(([name, value]) => <div key={name}><span>{name}</span><code>{value} · 0x{hex(value, name === 'PC' || name === 'AR' ? 2 : 4)}</code>{name === 'IR' && <small>{disassemble(value)}</small>}</div>)}</div></div>}
+        </section>
       </div>
       <Panel title="Speicherwerk" target="memory" className="memory-panel">
         <div className="memory-toolbar"><label>Anzeige<select aria-label="Speicheranzeige" value={mode} onChange={(e) => setMode(e.target.value as Mode)}><option value="binary">Binär</option><option value="symbolic">Symbolisch</option><option value="decimal">Dezimal</option><option value="hex">Hexadezimal</option></select></label><label><input type="checkbox" checked={follow} onChange={(e) => setFollow(e.target.checked)} /> PC folgen</label></div>
@@ -234,7 +249,7 @@ export default function App() {
         <div className="memory-foot"><span>▸ Programmzähler</span><span className="selection-key">Ausgewählt: {address}</span></div>
       </Panel>
     </main>
-    <footer className={`statusbar ${cpu.state === 'error' ? 'error' : ''}`}><span className={`status-dot ${m.running ? 'running' : ''}`} /><span role="status">{status}</span><span className="header-spacer" /><span>{cpu.steps} Befehle</span><span>{storageError ? 'Autosicherung nicht möglich – bitte Datei speichern' : 'Speicher lokal gesichert'}</span></footer>
+    <footer className={`statusbar menubar ${cpu.state === 'error' ? 'error' : ''}`}><span className={`status-dot ${m.running ? 'running' : ''}`} /><span role="status">{status}</span><span className="header-spacer" /><span>{cpu.steps} Befehle</span><span>{storageError ? 'Autosicherung nicht möglich – bitte Datei speichern' : 'Speicher lokal gesichert'}</span></footer>
     {notice && <div className="notice" role="status"><span>{notice}</span><button className="btn" aria-label="Meldung schließen" onClick={() => setNotice(null)}>×</button></div>}
     {(dialog === 'reference' || dialog === 'basic') && <Dialog title="Altair-Befehlssatz" wide onClose={() => setDialog(null)}><Reference initialBasic={dialog === 'basic'} /></Dialog>}
     {dialog === 'about' && <Dialog title="Über Altair" onClose={() => setDialog(null)}><h3>Altair · Web-Version 1.1.0</h3><p>Nachbau des Unterrichts-Modellrechners von J. Schmidt. 256 Speicherzellen, 16-Bit-Wörter und 23 Befehle. Kein Emulator des echten Intel-8080-Prozessors des Altair 8800.</p><p>Alle Berechnungen und Dateien bleiben in deinem Browser. Es gibt kein Backend und keine Telemetrie.</p><p><a href={REPO} target="_blank" rel="noreferrer">Projekt auf GitHub</a></p></Dialog>}
