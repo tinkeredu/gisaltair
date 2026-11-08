@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { Cpu } from '../core/cpu'
 import { EXAMPLES } from '../core/examples'
-import { binary, disassemble, hex, OP_BY_CODE, valueText } from '../core/isa'
+import { binary, disassemble, encode, hex, OP_BY_CODE, OPS, valueText } from '../core/isa'
 import { isMemory, parseMemory, parseNumber, parsePc1, readStored, serializeMemory, serializePc1, writeStored } from '../core/storage'
 import { Bits } from './Bits'
 import { Dialog } from './Dialog'
@@ -75,6 +75,7 @@ export default function App() {
   const [systemDark, setSystemDark] = useState(() => window.matchMedia('(prefers-color-scheme: dark)').matches)
   const [showControl, setShowControl] = useState(() => readStoredMigrated('control', 'altair.control', false, (v): v is boolean => typeof v === 'boolean'))
   const [showArDr, setShowArDr] = useState(() => readStoredMigrated('ardr', 'altair.ardr', false, (v): v is boolean => typeof v === 'boolean'))
+  const [commandMode, setCommandMode] = useState(() => readStored(storageKey('commandmode'), false, (v): v is boolean => typeof v === 'boolean'))
   const [address, setAddress] = useState(0)
   const [mode, setMode] = useState<Mode>('binary')
   const [follow, setFollow] = useState(true)
@@ -109,6 +110,7 @@ export default function App() {
   }, [skin, systemDark])
   useEffect(() => { writeStored(storageKey('control'), showControl) }, [showControl])
   useEffect(() => { writeStored(storageKey('ardr'), showArDr) }, [showArDr])
+  useEffect(() => { writeStored(storageKey('commandmode'), commandMode) }, [commandMode])
   useEffect(() => {
     // Synchronize the availability of the browser's persistent storage.
     // oxlint-disable-next-line react/set-state-in-effect
@@ -195,7 +197,7 @@ export default function App() {
             <NumberField label="Gehe zu Adresse" value={address} max={255} min={0} onChange={select} disabled={m.running} />
           </Panel>
           <Panel title={`Befehlswort · Zelle ${String(address).padStart(3, '0')}`} target="word" className="word-panel">
-            <div className="word-halves"><div><h3>Operationsteil <span>Bit 15–8</span></h3><Bits value={word >>> 8} label="Operationsteil" onChange={(n) => write((n << 8) | (word & 255))} disabled={busy} /><div className="byte-summary">{word >>> 8} · {op?.name ?? 'Unbekannt'}</div></div><div><h3>Adressteil <span>Bit 7–0</span></h3><Bits value={word & 255} label="Adressteil" onChange={(n) => write((word & 0xff00) | n)} disabled={busy} /><div className="byte-summary">{word & 255}{op && !op.operand ? ' · ohne Bedeutung' : ''}</div></div></div>
+            <div className="word-halves"><div><h3>Operationsteil <span>Bit 15–8</span></h3><label className="command-toggle"><input type="checkbox" checked={commandMode} onChange={(e) => setCommandMode(e.target.checked)} disabled={busy} /> Befehle wählen</label>{commandMode && <div className="command-picker"><label>Befehl<select aria-label="Befehl wählen" value={op ? String(op.code) : ''} disabled={busy} onChange={(e) => { if (e.target.value !== '') write(encode(Number(e.target.value), word & 255)) }}><option value="">Unbekannt ({word >>> 8})</option>{OPS.map((instruction) => <option key={instruction.code} value={String(instruction.code)}>{instruction.name}{instruction.operand ? ' X' : ''}</option>)}</select></label><div className="byte-summary">Opcode {word >>> 8} · {binary(word >>> 8, 8)}</div></div>}<Bits value={word >>> 8} label="Operationsteil" onChange={(n) => write((n << 8) | (word & 255))} disabled={busy} /><div className="byte-summary">{word >>> 8} · {op?.name ?? 'Unbekannt'}</div></div><div><h3>Adressteil <span>Bit 7–0</span></h3><Bits value={word & 255} label="Adressteil" onChange={(n) => write((word & 0xff00) | n)} disabled={busy} /><div className="byte-summary">{word & 255}{op && !op.operand ? ' · ohne Bedeutung' : ''}</div></div></div>
             <div className="word-summary"><code>{binary(word)}</code><span>0x{hex(word)} · {valueText(word)}</span></div>
             <NumberField key={address} label="Ganzes Wort (dezimal / 0x / 0b)" value={word} onChange={write} disabled={busy} />
           </Panel>
